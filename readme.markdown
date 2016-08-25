@@ -1,44 +1,31 @@
-#MsgPackStream
+# snappy-msgpack-stream
 
-Streams of framed [msgpack](http://msgpack.org) messages.
+[![Build Status](https://travis-ci.org/KlausTrainer/snappy-msgpack-stream.svg?branch=master)](https://travis-ci.org/KlausTrainer/snappy-msgpack-stream)
 
-[![testling badge](https://ci.testling.com/dominictarr/msgpack-stream.png)](https://ci.testling.com/dominictarr/msgpack-stream)
+Streams of framed [Snappy](https://google.github.io/snappy/)-compressed [MessagePack](http://msgpack.org/) messages..
 
-## WARNING
-
-this module is *not recommended* parsing `msgpack` in js is much slower
-than spliting json into lines and parsing with `JSON.parse`, which is heavily
-optimised in all good js implementations.
-
-instead use: [es.parse](https://github.com/dominictarr/event-stream#parse) and [es.stringify](https://github.com/dominictarr/event-stream#stringify)
-
-If you really want to use `msgpack` you should fix this issue: [pgreiss/node-msgpack#16](https://github.com/pgriess/node-msgpack/issues/16)
-
-## usage
+## Usage
 
 ``` js
+var snappyStream = require('snappy-msgpack-stream');
+var encode = snappyStream.createEncodeStream();
+var decode = snappyStream.createDecodeStream();
 
-var mps = require('msgpack-stream')
+encode.pipe(decode);
 
-var encode = mps.createEncodeStream()
-var decode = mps.createDecodeStream()
+decode.on('data', console.log);
 
-encode.pipe(decode)
-
-decode.on('data', console.log)
-
-encode.write('HELLO')
-encode.write({object: true})
-encode.write(true)
-encode.write(AnyValidJsObject) //!
+encode.write('HELLO');
+encode.write({object: true});
+encode.write(true);
+encode.write({foo: true, bar: 42, baz: null, pow: "wow"});
+// encode.write(anyMessagePackSerializableObject);
 ```
 
-## remarks
+## Limitations
 
-this is mostly pulled out of [smith](https://github.com/c9/smith) and slightly refactored to fit a stream.
+Please note that MessagePack does not support many JavaScript types, like e.g. `Infinity`, or `NaN`. However, we use [msgpack-js](https://www.npmjs.com/package/msgpack-js), which implements a slightly extended MessagePack protocol, and allows encoding and decoding of `Buffer` and `undefined` instances.
 
-## lies
+## Remarks
 
-Actually, msgpack does not support much loved js objects such as `Infinity`, or `Nan`. 
-
-On the other hand, `msgpack-stream` uses [creationix/msgpack-js](https://github.com/creationix/msgpack-js) which implements a slightly extended protocol, so you can pack `Buffer` and `undefined`
+This is mostly pulled out of [msgpack-stream](https://www.npmjs.com/package/msgpack-stream).

@@ -21,8 +21,10 @@ THE SOFTWARE.
 */
 
 var msgpack = require('msgpack-js');
+var snappy = require('@klaus_trainer/snappyjs');
 var through = require('through');
-var bops    = require('bops')
+var bops = require('bops');
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +37,7 @@ var bops    = require('bops')
 // "disconnect" - the transport was disconnected
 // "error" - event emitted for stream error or disconnect
 // "drain" - drain event from output stream
-exports.createEncodeStream = 
+exports.createEncodeStream =
 function () {
   return through(function (data) {
     // console.log('SEND')
@@ -48,26 +50,27 @@ function send (output, message) {
     // console.log(process.pid + " -> " + inspect(message, false, 2, true));
 
     // Serialize the messsage.
-    var frame = msgpack.encode(message);
+    var encodedMessage = msgpack.encode(message);
+    var frame = snappy.compress(encodedMessage);
 
     // Send a 4 byte length header before the frame.
     var header = bops.create(4);
-    bops.writeUInt32BE(header, frame.length, 0);
+    bops.writeUInt32BE(header, frame.byteLength, 0);
     output.emit('data', header);
 
     // Send the serialized message.
     return output.emit('data', frame);
-};
+}
 
-
-exports.createDecodeStream = 
+exports.createDecodeStream =
 function  () {
     var stream
     return stream = through(deFramer(function (frame) {
         // console.log(frame)
         var message;
         try {
-            message = msgpack.decode(frame);
+            var uncompressedFrame = snappy.uncompress(frame);
+            message = msgpack.decode(uncompressedFrame);
         } catch (err) {
             return stream.emit("error", err);
         }
@@ -80,7 +83,8 @@ function Transport(input, output) {
     var parse = deFramer(function (frame) {
         var message;
         try {
-            message = msgpack.decode(frame);
+            var uncompressedFrame = snappy.uncompress(frame);
+            message = msgpack.decode(uncompressedFrame);
         } catch (err) {
             return self.emit("error", err);
         }
@@ -141,4 +145,3 @@ function deFramer(onFrame) {
         }
     };
 }
-

@@ -1,45 +1,31 @@
 {
-  "name": "msgpack-stream",
-  "version": "0.0.12",
-  "description": "Stream of msgpack protocol",
+  "name": "snappy-msgpack-stream",
+  "version": "1.0.0",
+  "description": "Streams of framed Snappy-compressed MessagePack messages",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "NODE_ENV=test tape test.js"
   },
   "dependencies": {
-    "through": "2.3.4",
-    "msgpack-js": "0.3.0",
-    "bops": "0.0.6"
+    "bops": "^1.0.0",
+    "msgpack-js": "^0.3.0",
+    "@klaus_trainer/snappyjs": "^1.0.0",
+    "through": "^2.3.8"
   },
   "keywords": [
-    "msgpack",
+    "snappy",
+    "json",
     "stream",
     "pipe",
     "frame"
   ],
-  "author": "Dominic Tarr <dominic.tarr@gmail.com> (dominictarr.com)",
+  "author": "Klaus Trainer <klaus_trainer@apache.org>",
   "license": "MIT",
   "devDependencies": {
-    "tape": "~1.0.4"
+    "tape": "^4.6.0"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/dominictarr/msgpack-stream.git"
-  },
-  "testling": {
-    "files": "test.js",
-    "browsers": [
-      "ie/8..latest",
-      "firefox/17..latest",
-      "firefox/nightly",
-      "chrome/22..latest",
-      "chrome/canary",
-      "opera/12..latest",
-      "opera/next",
-      "safari/5.1..latest",
-      "ipad/6.0..latest",
-      "iphone/6.0..latest",
-      "android-browser/4.2..latest"
-    ]
+    "url": "https://github.com/KlausTrainer/snappy-json-stream.git"
   }
 }
