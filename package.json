@@ -1,6 +1,6 @@
 {
   "name": "snappy-msgpack-stream",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Streams of framed Snappy-compressed MessagePack messages",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "keywords": [
     "snappy",
-    "json",
+    "msgpack",
     "stream",
     "pipe",
     "frame"
@@ -26,6 +26,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/KlausTrainer/snappy-json-stream.git"
+    "url": "https://github.com/KlausTrainer/snappy-msgpack-stream.git"
   }
 }
