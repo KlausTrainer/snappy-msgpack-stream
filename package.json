@@ -1,10 +1,10 @@
 {
   "name": "snappy-msgpack-stream",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Streams of framed Snappy-compressed MessagePack messages",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test tape test.js"
+    "test": "standard && tape test.js"
   },
   "dependencies": {
     "bops": "^1.0.0",
@@ -22,6 +22,7 @@
   "author": "Klaus Trainer <klaus_trainer@apache.org>",
   "license": "MIT",
   "devDependencies": {
+    "standard": "^8.0.0",
     "tape": "^4.6.0"
   },
   "repository": {

@@ -1,6 +1,7 @@
 # snappy-msgpack-stream
 
 [![Build Status](https://travis-ci.org/KlausTrainer/snappy-msgpack-stream.svg?branch=main)](https://travis-ci.org/KlausTrainer/snappy-msgpack-stream)
+[![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 Streams of framed [Snappy](https://google.github.io/snappy/)-compressed [MessagePack](http://msgpack.org/) messages..
 

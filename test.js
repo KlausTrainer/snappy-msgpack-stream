@@ -2,16 +2,14 @@ var mps = require('./index')
 
 var encode = mps.createEncodeStream()
 var decode = mps.createDecodeStream()
-var assert = require('assert')
 
 require('tape')('simple', function (t) {
-
   var expected = [
     1,
     0,
     null,
     true,
-    "hello",
+    'hello',
     'string\nwith\nlines',
     {object: true, name: 'no need for a name'},
     ['this', 'that', {}, [], [null]],
@@ -24,8 +22,8 @@ require('tape')('simple', function (t) {
   ]
 
   var toSend = expected.slice()
-    , expectedItems = expected.slice()
-    , actual = []
+  var expectedItems = expected.slice()
+  var actual = []
 
   encode
   .pipe(decode)
@@ -39,8 +37,9 @@ require('tape')('simple', function (t) {
     t.end()
   })
 
-  while(toSend.length)
+  while (toSend.length) {
     encode.write(toSend.shift())
-  encode.end()
+  }
 
+  encode.end()
 })

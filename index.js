@@ -20,13 +20,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-var msgpack = require('msgpack-js');
-var snappy = require('@klaus_trainer/snappyjs');
-var through = require('through');
-var bops = require('bops');
+var msgpack = require('msgpack-js')
+var snappy = require('@klaus_trainer/snappyjs')
+var through = require('through')
+var bops = require('bops')
 
-
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 
 // Transport is a connection between two Agents.  It lives on top of a duplex,
 // binary stream.
@@ -46,106 +45,113 @@ function () {
 }
 
 function send (output, message) {
-    // Uncomment to debug protocol
-    // console.log(process.pid + " -> " + inspect(message, false, 2, true));
+  // Uncomment to debug protocol
+  // console.log(process.pid + " -> " + inspect(message, false, 2, true));
 
-    // Serialize the messsage.
-    var encodedMessage = msgpack.encode(message);
-    var frame = snappy.compress(encodedMessage);
+  // Serialize the messsage.
+  var encodedMessage = msgpack.encode(message)
+  var frame = snappy.compress(encodedMessage)
 
-    // Send a 4 byte length header before the frame.
-    var header = bops.create(4);
-    bops.writeUInt32BE(header, frame.byteLength, 0);
-    output.emit('data', header);
+  // Send a 4 byte length header before the frame.
+  var header = bops.create(4)
+  bops.writeUInt32BE(header, frame.byteLength, 0)
+  output.emit('data', header)
 
-    // Send the serialized message.
-    return output.emit('data', frame);
+  // Send the serialized message.
+  return output.emit('data', frame)
 }
 
 exports.createDecodeStream =
-function  () {
-    var stream
-    return stream = through(deFramer(function (frame) {
-        // console.log(frame)
-        var message;
-        try {
-            var uncompressedFrame = snappy.uncompress(frame);
-            message = msgpack.decode(uncompressedFrame);
-        } catch (err) {
-            return stream.emit("error", err);
-        }
+function () {
+  var stream = through(deFramer(function (frame) {
+    // console.log(frame)
+    var message
 
-        stream.emit('data', message)
-    }))
-}
-
-function Transport(input, output) {
-    var parse = deFramer(function (frame) {
-        var message;
-        try {
-            var uncompressedFrame = snappy.uncompress(frame);
-            message = msgpack.decode(uncompressedFrame);
-        } catch (err) {
-            return self.emit("error", err);
-        }
-        // console.log(process.pid + " <- " + inspect(message, false, 2, true));
-        self.emit("message", message);
-    });
-
-    // Route data chunks to the parser, but check for errors
-    function onData(chunk) {
-        try {
-            parse(chunk);
-        } catch (err) {
-            self.emit("error", err);
-        }
+    try {
+      var uncompressedFrame = snappy.uncompress(frame)
+      message = msgpack.decode(uncompressedFrame)
+    } catch (err) {
+      return stream.emit('error', err)
     }
+
+    stream.emit('data', message)
+  }))
+
+  return stream
 }
+
+/* eslint-disable no-unused-vars */
+function Transport (input, output) {
+  /* global self */
+  var parse = deFramer(function (frame) {
+    var message
+
+    try {
+      var uncompressedFrame = snappy.uncompress(frame)
+      message = msgpack.decode(uncompressedFrame)
+    } catch (err) {
+      return self.emit('error', err)
+    }
+
+    // console.log(process.pid + " <- " + inspect(message, false, 2, true));
+    self.emit('message', message)
+  })
+
+  // Route data chunks to the parser, but check for errors
+  function onData (chunk) {
+    try {
+      parse(chunk)
+    } catch (err) {
+      self.emit('error', err)
+    }
+  }
+}
+/* eslint-enable no-unused-vars */
 
 // A simple state machine that consumes raw bytes and emits frame events.
 // Returns a parser function that consumes buffers.  It emits message buffers
 // via onMessage callback passed in.
-function deFramer(onFrame) {
-    var buffer;
-    var state = 0;
-    var length = 0;
-    var offset;
-    return function parse(chunk) {
-        for (var i = 0, l = chunk.length; i < l; i++) {
-            switch (state) {
-            case 0: length |= chunk[i] << 24; state = 1; break;
-            case 1: length |= chunk[i] << 16; state = 2; break;
-            case 2: length |= chunk[i] << 8; state = 3; break;
-            case 3: length |= chunk[i]; state = 4;
-                offset = 0;
-                break;
-            case 4:
-                var len = l - i;
-                var emit = false;
-                if (len + offset >= length) {
-                    emit = true;
-                    len = length - offset;
-                }
-                if (emit && offset === 0) {
-                  buffer = bops.subarray(chunk, i, i + len);
-                } else if (offset === 0) {
-                  buffer = bops.create(length);
-                  bops.copy(chunk, buffer, 0, i, i + len);
-                } else {
-                  bops.copy(chunk, buffer, offset, i, i + len);
-                }
-                offset += len;
-                i += len - 1;
-                if (emit) {
-                    state = 0;
-                    length = 0;
-                    var _buffer = buffer
-                    buffer = undefined;
-                    offset = undefined;
-                    onFrame(_buffer);
-                }
-                break;
-            }
-        }
-    };
+function deFramer (onFrame) {
+  var buffer
+  var state = 0
+  var length = 0
+  var offset
+  return function parse (chunk) {
+    for (var i = 0, l = chunk.length; i < l; i++) {
+      switch (state) {
+        case 0: length |= chunk[i] << 24; state = 1; break
+        case 1: length |= chunk[i] << 16; state = 2; break
+        case 2: length |= chunk[i] << 8; state = 3; break
+        case 3: length |= chunk[i]; state = 4
+          offset = 0
+          break
+        case 4:
+          var len = l - i
+          var emit = false
+          if (len + offset >= length) {
+            emit = true
+            len = length - offset
+          }
+          if (emit && offset === 0) {
+            buffer = bops.subarray(chunk, i, i + len)
+          } else if (offset === 0) {
+            buffer = bops.create(length)
+            bops.copy(chunk, buffer, 0, i, i + len)
+          } else {
+            bops.copy(chunk, buffer, offset, i, i + len)
+          }
+          offset += len
+          i += len - 1
+          if (emit) {
+            state = 0
+            length = 0
+            var _buffer = buffer
+            buffer = undefined
+            offset = undefined
+            onFrame(_buffer)
+          }
+          break
+      }
+    }
+  }
 }
