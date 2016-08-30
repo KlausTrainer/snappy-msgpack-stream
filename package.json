@@ -1,10 +1,10 @@
 {
   "name": "snappy-msgpack-stream",
-  "version": "1.0.6",
   "description": "Streams of framed Snappy-compressed MessagePack messages",
   "main": "index.js",
   "scripts": {
-    "test": "standard && tape test.js"
+    "test": "standard && tape test.js",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "dependencies": {
     "bops": "^1.0.0",
@@ -23,10 +23,14 @@
   "license": "MIT",
   "devDependencies": {
     "standard": "^8.0.0",
-    "tape": "^4.6.0"
+    "tape": "^4.6.0",
+    "semantic-release": "^4.3.5"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/KlausTrainer/snappy-msgpack-stream.git"
+  },
+  "release": {
+    "branch": "main"
   }
 }
