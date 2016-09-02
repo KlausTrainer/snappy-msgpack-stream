@@ -9,7 +9,7 @@
   "dependencies": {
     "bops": "^1.0.0",
     "msgpack-js": "^0.3.0",
-    "@klaus_trainer/snappyjs": "^1.0.0",
+    "snappyjs": "^0.5.0",
     "through": "^2.3.8"
   },
   "keywords": [

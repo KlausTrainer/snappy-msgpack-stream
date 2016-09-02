@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 
 var msgpack = require('msgpack-js')
-var snappy = require('@klaus_trainer/snappyjs')
+var snappy = require('snappyjs')
 var through = require('through')
 var bops = require('bops')
 
