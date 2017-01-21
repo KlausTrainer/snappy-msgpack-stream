@@ -26,8 +26,4 @@ encode.write({foo: true, bar: 42, baz: null, pow: "wow"});
 
 ## Limitations
 
-Please note that MessagePack does not support many JavaScript types, like e.g. `Infinity`, or `NaN`. However, we use [msgpack-js](https://www.npmjs.com/package/msgpack-js), which implements a slightly extended MessagePack protocol, and allows encoding and decoding of `Buffer` and `undefined` instances.
-
-## Remarks
-
-This is mostly pulled out of [msgpack-stream](https://www.npmjs.com/package/msgpack-stream).
+Please note that MessagePack does not support many JavaScript types, like e.g. `Infinity` or `NaN`. However, we use [msgpack-lite](https://www.npmjs.com/package/msgpack-lite), which implements a slightly extended MessagePack protocol, and allows encoding and decoding `Infinity` and `NaN`, as well as `Buffer` instances.

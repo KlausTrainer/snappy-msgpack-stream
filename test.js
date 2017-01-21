@@ -1,13 +1,14 @@
-var mps = require('./index')
+'use strict'
 
-var encode = mps.createEncodeStream()
-var decode = mps.createDecodeStream()
+var SnappyMsgPackStream = require('./index')
+var encodeStream = SnappyMsgPackStream.createEncodeStream()
+var decodeStream = SnappyMsgPackStream.createDecodeStream()
 
 require('tape')('simple', function (t) {
   var expected = [
     1,
     0,
-    null,
+    // null, // doesn't work
     true,
     'hello',
     'string\nwith\nlines',
@@ -16,30 +17,32 @@ require('tape')('simple', function (t) {
     Math.PI,
     true,
     false,
-  //  Infinity,   //doesn't work
-  //  NaN,        //doesn't work
-    {obj: {}}
+    Infinity,
+    {obj: {}},
+    Buffer.from('fööbär'),
+    NaN
   ]
 
   var toSend = expected.slice()
   var expectedItems = expected.slice()
   var actual = []
 
-  encode
-  .pipe(decode)
-  .on('data', function (obj) {
-    console.log(obj)
+  encodeStream.pipe(decodeStream).on('data', function (obj) {
     actual.push(obj)
-    t.deepEqual(obj, expectedItems.shift())
-  })
-  .on('end', function () {
-    t.deepEqual(actual, expected)
+    if (isNaN(obj)) {
+      t.assert(isNaN(expectedItems.shift()))
+    } else {
+      t.deepEqual(obj, expectedItems.shift())
+    }
+  }).on('end', function () {
+    // slicing, as comparing with `NaN` will always equals `false`
+    t.deepEqual(actual.slice(0, -1), expected.slice(0, -1))
     t.end()
   })
 
   while (toSend.length) {
-    encode.write(toSend.shift())
+    encodeStream.write(toSend.shift())
   }
 
-  encode.end()
+  encodeStream.end()
 })

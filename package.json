@@ -7,10 +7,10 @@
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "dependencies": {
-    "bops": "^1.0.0",
+    "length-prefixed-stream": "^1.5.1",
     "msgpack-lite": "^0.1.26",
-    "snappyjs": "^0.5.0",
-    "through": "^2.3.8"
+    "pumpify": "^1.3.5",
+    "snappyjs": "^0.5.0"
   },
   "keywords": [
     "snappy",
@@ -22,9 +22,9 @@
   "author": "Klaus Trainer <klaus_trainer@apache.org>",
   "license": "MIT",
   "devDependencies": {
+    "semantic-release": "^6.3.6",
     "standard": "^8.0.0",
-    "tape": "^4.6.0",
-    "semantic-release": "^6.3.2"
+    "tape": "^4.6.0"
   },
   "repository": {
     "type": "git",
