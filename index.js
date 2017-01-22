@@ -3,29 +3,39 @@
 var snappy = require('snappyjs')
 var msgpack = require('msgpack-lite')
 var lpStream = require('length-prefixed-stream')
-var stream = require('stream')
-var pumpify = require('pumpify')
+var Transform = require('readable-stream/transform')
 
-var snappyCompressStream = new stream.Transform({
+var msgpackEncodeStream = new Transform({
+  objectMode: true,
+  transform: function (chunk, encoding, next) {
+    next(null, msgpack.encode(chunk))
+  }
+})
+
+var msgpackDecodeStream = new Transform({
+  objectMode: true,
+  transform: function (chunk, encoding, callback) {
+    callback(null, msgpack.decode(chunk))
+  }
+})
+
+var snappyCompressStream = new Transform({
   transform: function (chunk, encoding, next) {
     next(null, snappy.compress(chunk))
   }
 })
 
-var snappyUncompressStream = new stream.Transform({
+var snappyUncompressStream = new Transform({
   transform: function (chunk, encoding, callback) {
     callback(null, snappy.uncompress(chunk))
   }
 })
 
 exports.createEncodeStream = function SnappyMsgpackEncodeStream () {
-  return pumpify.obj(
-    pumpify.obj(msgpack.createEncodeStream(), snappyCompressStream),
-    lpStream.encode())
+  msgpackEncodeStream.pipe(snappyCompressStream).pipe(lpStream.encode())
+  return msgpackEncodeStream
 }
 
 exports.createDecodeStream = function SnappyMsgpackDecodeStream () {
-  return pumpify.obj(
-    pumpify.obj(lpStream.decode(), snappyUncompressStream),
-    msgpack.createDecodeStream())
+  return lpStream.decode().pipe(snappyUncompressStream).pipe(msgpackDecodeStream)
 }
