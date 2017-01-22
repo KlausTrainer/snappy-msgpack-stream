@@ -1,41 +1,31 @@
 'use strict'
 
-var snappy = require('snappyjs')
-var msgpack = require('msgpack-lite')
+var pumpify = require('pumpify')
+var through = require('through2')
 var lpStream = require('length-prefixed-stream')
-var Transform = require('readable-stream/transform')
+var msgpack = require('msgpack-lite')
+var snappy = require('snappyjs')
 
-var msgpackEncodeStream = new Transform({
-  objectMode: true,
-  transform: function (chunk, encoding, next) {
-    next(null, msgpack.encode(chunk))
-  }
-})
+module.exports.createEncodeStream = function SnappyMsgpackEncodeStream (stream) {
+  var msgEncode = through.obj(function (data, enc, next) {
+    next(null, msgpack.encode(data))
+  })
 
-var msgpackDecodeStream = new Transform({
-  objectMode: true,
-  transform: function (chunk, encoding, callback) {
-    callback(null, msgpack.decode(chunk))
-  }
-})
+  var snappyCompress = through.obj(function (data, enc, next) {
+    next(null, snappy.compress(data))
+  })
 
-var snappyCompressStream = new Transform({
-  transform: function (chunk, encoding, next) {
-    next(null, snappy.compress(chunk))
-  }
-})
-
-var snappyUncompressStream = new Transform({
-  transform: function (chunk, encoding, callback) {
-    callback(null, snappy.uncompress(chunk))
-  }
-})
-
-exports.createEncodeStream = function SnappyMsgpackEncodeStream () {
-  msgpackEncodeStream.pipe(snappyCompressStream).pipe(lpStream.encode())
-  return msgpackEncodeStream
+  return pumpify.obj(msgEncode, snappyCompress, lpStream.encode())
 }
 
-exports.createDecodeStream = function SnappyMsgpackDecodeStream () {
-  return lpStream.decode().pipe(snappyUncompressStream).pipe(msgpackDecodeStream)
+module.exports.createDecodeStream = function SnappyMsgpackDecodeStream (stream) {
+  var msgDecode = through.obj(function (data, enc, next) {
+    next(null, msgpack.decode(data))
+  })
+
+  var snappyUncompress = through.obj(function (data, enc, next) {
+    next(null, snappy.uncompress(data))
+  })
+
+  return pumpify.obj(lpStream.decode(), snappyUncompress, msgDecode)
 }
