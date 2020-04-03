@@ -12,13 +12,13 @@ require('tape')('simple', function (t) {
     true,
     'hello',
     'string\nwith\nlines',
-    {object: true, name: 'no need for a name'},
+    { object: true, name: 'no need for a name' },
     ['this', 'that', {}, [], [null]],
     Math.PI,
     true,
     false,
     Infinity,
-    {obj: {}},
+    { obj: {} },
     Buffer.from('fööbär'),
     NaN
   ]
